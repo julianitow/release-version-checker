@@ -1,0 +1,13 @@
+#NODE
+node_modules/
+package-lock.json
+
+#MACOS
+.DS_Store
+
+#OUT FILES
+dist/
+
+#OTHER
+*.zip
+.env

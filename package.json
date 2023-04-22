@@ -1,0 +1,37 @@
+{
+  "name": "panda_check",
+  "version": "1.0.0",
+  "description": "Ticketing service",
+  "main": "dist/www.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "start:watch": "nodemon .",
+    "dev": "tsc && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "ids",
+    "patient",
+    "dhp"
+  ],
+  "author": "Julianitow",
+  "license": "MIT",
+  "homepage": "https://github.com/julianitow",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "jsdom": "^21.1.1",
+    "nodemailer": "^6.9.1",
+    "puppeteer": "^19.9.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.1",
+    "@types/node": "^18.15.12",
+    "@types/nodemailer": "^6.4.7"
+  }
+}

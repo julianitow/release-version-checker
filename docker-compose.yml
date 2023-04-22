@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  panda:
+   image: panda_checker
+   env_file:
+    - .env
