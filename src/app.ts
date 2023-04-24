@@ -9,7 +9,7 @@ const URL = process.env.URL as string;
 const DIV_ID = process.env.DIV_ID as string;
 
 async function main() {
-  Logger.INFO("Hello from nike parsing service");
+  Logger.INFO(`Hello from ${process.env.NAME}:v${process.env.VERSION}`);
   Logger.DEBUG("HEALTH CHECK at", CHECK_HOUR);
   const parserService: IParserService = new ParserService();
   const notificationService: INotificationService = new NotificationService();
@@ -28,8 +28,8 @@ async function main() {
     const now = new Date();
     if (now.getHours() === checkHour) {
       const email: EMAIL = {
-        subject: `PANDA CHECKER: Pas dispo...`,
-        text: "Pas encore... Mais au moins tu sais que je tournes !",
+        subject: `${process.env.NAME}: ${process.env.SUBJECT_HEALTH_CHECK}`,
+        text: process.env.EMAIL_BODY_HEALTHCHECK as string,
       };
       notificationService.sendEmail(
         process.env.SMTP_USER as string,
@@ -42,8 +42,8 @@ async function main() {
   }
   Logger.INFO(" Dispo en 44 !");
   const email: EMAIL = {
-    subject: `PANDA CHECKER: Enfin !!`,
-    text: `Elle est dispo ! \n Clique ! ${URL}`,
+    subject: `${process.env.NAME}: ${process.env.SUBJECT_SUCCESS}`,
+    text: `${process.env.EMAIL_BODY_SUCCESS} \n Clique ! ${URL}`,
   };
   notificationService.sendEmail(
     process.env.SMTP_USER as string,
