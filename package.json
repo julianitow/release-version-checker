@@ -1,6 +1,6 @@
 {
   "name": "panda_check",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Ticketing service",
   "main": "dist/www.js",
   "types": "dist/index.d.ts",
@@ -14,11 +14,6 @@
     "type": "git",
     "url": ""
   },
-  "keywords": [
-    "ids",
-    "patient",
-    "dhp"
-  ],
   "author": "Julianitow",
   "license": "MIT",
   "homepage": "https://github.com/julianitow",
