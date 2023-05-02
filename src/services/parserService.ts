@@ -15,8 +15,13 @@ export class ParserService implements IParserService {
     return element;
   }
   async parsePage(url: string, timeout: number = 60000): Promise<string> {
+    const config: any = {};
+    if (process.env.CHROMIUM_PATH) {
+      config.executablePath = process.env.CHROMIUM_PATH;
+    }
     const browser = await puppeteer.launch({
       args: ["--no-sandbox"],
+      ...config,
     });
     const page = await browser.newPage();
 

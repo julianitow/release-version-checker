@@ -6,6 +6,7 @@ package-lock.json
 .DS_Store
 
 #OUT FILES
+bin/
 dist/
 
 #OTHER

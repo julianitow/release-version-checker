@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "skipLibCheck": true, // needed, skip the compilation check of libraries, to remove it: migrate mongoose to version 6
     "target": "es6",
     "module": "commonjs",
     "lib": [

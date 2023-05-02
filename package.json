@@ -28,5 +28,11 @@
     "@types/jsdom": "^21.1.1",
     "@types/node": "^18.15.12",
     "@types/nodemailer": "^6.4.7"
+  },
+  "bin": "dist/app.js",
+  "pkg": {
+    "scripts": "dist/**/*.js",
+    "targets": [ "node16-win-arm64", "node16-macos-arm64" ],
+    "outputPath": "bin"
   }
 }
