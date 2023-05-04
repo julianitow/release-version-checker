@@ -19,6 +19,11 @@ async function fetchElement(): Promise<Boolean> {
   const checkHour = +(CHECK_HOUR as string);
   const now = new Date();
 
+  const email: EMAIL = {
+    subject: `${process.env.NAME}: ${process.env.SUBJECT_SUCCESS}`,
+    text: `${process.env.EMAIL_BODY_SUCCESS} \n Clique ! ${URL}`,
+  };
+
   try {
     const parsedPage = await parserService.parsePage(URL);
     element = await parserService.getElementByIdFromString(parsedPage, DIV_ID);
@@ -26,12 +31,11 @@ async function fetchElement(): Promise<Boolean> {
     Logger.ERROR(err);
   }
 
-  if (element === null) {
+  if (element === null || element.getAttribute("disabled") !== null) {
     if (now.getHours() === checkHour) {
-      const email: EMAIL = {
-        subject: `${process.env.NAME}: ${process.env.SUBJECT_HEALTH_CHECK}`,
-        text: process.env.EMAIL_BODY_HEALTHCHECK as string,
-      };
+      email.subject = `${process.env.NAME}: ${process.env.SUBJECT_HEALTH_CHECK}`;
+      email.text = process.env.EMAIL_BODY_HEALTHCHECK as string;
+
       notificationService.sendEmail(
         process.env.SMTP_USER as string,
         process.env.SMTP_USER as string,
@@ -43,10 +47,7 @@ async function fetchElement(): Promise<Boolean> {
   }
 
   Logger.INFO(" Dispo !");
-  const email: EMAIL = {
-    subject: `${process.env.NAME}: ${process.env.SUBJECT_SUCCESS}`,
-    text: `${process.env.EMAIL_BODY_SUCCESS} \n Clique ! ${URL}`,
-  };
+
   notificationService.sendEmail(
     process.env.SMTP_USER as string,
     process.env.SMTP_USER as string,
@@ -70,6 +71,12 @@ async function main() {
   const delay = 1000 * 60 * +delayMn;
 
   Logger.DEBUG("Delay in ms:", delay);
+
+  /*if (process.env.DOCKER === "true") {
+    Logger.INFO("Running in docker.");
+    await fetchElement();
+    return;
+  }*/
 
   const available = await fetchElement();
   if (available) {
