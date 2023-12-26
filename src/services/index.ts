@@ -1,2 +1,2 @@
 export * from "./parserService";
-export * from "./notificationService";
+export * from "./versionService";

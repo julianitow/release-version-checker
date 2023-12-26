@@ -1,2 +1,3 @@
 export * from "./IParserService";
-export * from "./INotificationService";
+export * from "./IVersionService";
+export * from "./IVersion";

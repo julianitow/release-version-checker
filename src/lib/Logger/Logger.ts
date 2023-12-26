@@ -1,3 +1,5 @@
+import { Context } from "koa";
+
 enum LEVEL {
   "DEBUG" = "DEBUG",
   "INFO" = "INFO",
@@ -17,6 +19,13 @@ export class Logger {
       }:`,
       ...out
     );
+  }
+
+  static async KOA_LOG(ctx: Context, next: any): Promise<void> {
+    Logger.INFO(`<-- ${ctx.request.method}::${ctx.url} ${ctx.request.ip}`);
+    await next();
+    const rt = ctx.response.get('X-Response-Time');
+    Logger.INFO(`--> ${ctx.method}::${ctx.url} - ${rt} - ${ctx.response.status}`);
   }
 
   static DEBUG(...out: any[]): void {

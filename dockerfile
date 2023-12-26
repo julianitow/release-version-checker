@@ -13,6 +13,7 @@ FROM node:18-alpine
 
 WORKDIR /workspace
 COPY package.json /workspace/
+COPY .env /workspace/.env
 
 RUN apk add --no-cache \
     chromium \
@@ -29,6 +30,6 @@ COPY --from=builder /workspace/dist /workspace/dist
 COPY crontab.txt /workspace/
 
 RUN /usr/bin/crontab /workspace/crontab.txt
-
-#ENTRYPOINT [ "npm", "run", "start" ]
-CMD ["crond", "-f"]
+EXPOSE 3000
+ENTRYPOINT [ "npm", "run", "start" ]
+#CMD ["crond", "-f"]

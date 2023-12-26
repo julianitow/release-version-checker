@@ -1,94 +1,68 @@
+import Koa from "koa";
+import Router from "@koa/router";
 import * as dotenv from "dotenv";
 import { Logger } from "./lib/Logger/Logger";
-import { NotificationService, ParserService } from "./services";
-import { EMAIL, INotificationService, IParserService } from "./interfaces";
+import { ParserService, VersionService } from "./services";
+import { IParserService, IVersion } from "./interfaces";
 import path from "path";
 
 const dotenvPath = path.join(process.cwd(), "/.env");
 dotenv.config({ path: dotenvPath });
 const CHECK_HOUR = process.env.CHECK_HOUR;
 const URL = process.env.URL as string;
-const DIV_ID = process.env.DIV_ID as string;
+const CLASS_NAME = process.env.CLASS_NAME as string;
+const PORT = process.env.PORT || 3000;
 
-async function fetchElement(): Promise<Boolean> {
-  Logger.INFO("Checking availability");
+async function fetchElement(): Promise<string | undefined> {
   const parserService: IParserService = new ParserService();
-  const notificationService: INotificationService = new NotificationService();
 
-  let element: HTMLElement | null = null;
-  const checkHour = +(CHECK_HOUR as string);
-  const now = new Date();
-
-  const email: EMAIL = {
-    subject: `${process.env.NAME}: ${process.env.SUBJECT_SUCCESS}`,
-    text: `${process.env.EMAIL_BODY_SUCCESS} \n Clique ! ${URL}`,
-  };
+  let elements: HTMLElement[] | null = null;
+  let version: string = "";
 
   try {
     const parsedPage = await parserService.parsePage(URL);
-    element = await parserService.getElementByIdFromString(parsedPage, DIV_ID);
+    elements = await parserService.getElementsByClassName(parsedPage, CLASS_NAME);
+    if (!elements) return;
+    const v: IVersion = {
+      version: VersionService.getVersionFromHTMLElement(elements[elements.length - 1]).replace("\n", ""),
+      url: ""
+    }
+    return JSON.stringify(v);
   } catch (err) {
     Logger.ERROR(err);
+    throw err;
   }
-
-  if (element === null || element.getAttribute("disabled") !== null) {
-    if (now.getHours() === checkHour) {
-      email.subject = `${process.env.NAME}: ${process.env.SUBJECT_HEALTH_CHECK}`;
-      email.text = process.env.EMAIL_BODY_HEALTHCHECK as string;
-
-      notificationService.sendEmail(
-        process.env.SMTP_USER as string,
-        process.env.SMTP_USER as string,
-        email
-      );
-      Logger.INFO("Pas dispo.");
-    }
-    return false;
-  }
-
-  Logger.INFO(" Dispo !");
-
-  notificationService.sendEmail(
-    process.env.SMTP_USER as string,
-    process.env.SMTP_USER as string,
-    email
-  );
-  return true;
-}
-
-function stopInterval(interval: NodeJS.Timer): void {
-  clearInterval(interval);
 }
 
 async function main() {
   Logger.INFO(`Hello from ${process.env.NAME}:v${process.env.VERSION}`);
   Logger.INFO("Process path:", process.cwd());
   Logger.INFO("Config path: ", dotenvPath);
-  Logger.DEBUG("Health check at", CHECK_HOUR);
-  Logger.INFO("Check availability every:", process.env.CHECK_DELAY, "mn");
 
-  const delayMn = process.env.CHECK_DELAY as string;
-  const delay = 1000 * 60 * +delayMn;
+  const app = new Koa();
+  const router = new Router();
 
-  Logger.DEBUG("Delay in ms:", delay);
-
-  /*if (process.env.DOCKER === "true") {
-    Logger.INFO("Running in docker.");
-    await fetchElement();
-    return;
-  }*/
-
-  const available = await fetchElement();
-  if (available) {
-    return;
-  }
-  Logger.INFO("Retrying in 30mn...");
-  const interval = setInterval(async () => {
-    if (await fetchElement()) {
-      stopInterval(interval);
+  router.get('/latest', async (ctx, next) => {
+    try {
+      ctx.body = await fetchElement();
+      ctx.status = 200;
+    } catch(err) {
+      ctx.status = 500;
     }
-    Logger.INFO("Retrying in 30mn...");
-  }, delay);
+  });
+
+  app
+    .use(Logger.KOA_LOG)
+    .use(async (ctx, next) => {
+      const start = Date.now();
+      await next();
+      const ms = Date.now() - start;
+      ctx.set('X-Response-Time', `${ms}ms`);
+    })
+    .use(router.routes())
+    .use(router.allowedMethods())
+
+  app.listen(PORT, () => { Logger.INFO(`Listening on port: ${PORT}`)});
 }
 
 main();
