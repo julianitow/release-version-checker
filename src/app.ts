@@ -5,6 +5,7 @@ import { Logger } from "./lib/Logger/Logger";
 import { ParserService, VersionService } from "./services";
 import { IParserService, IVersion } from "./interfaces";
 import path from "path";
+import NodeCache from "node-cache";
 
 const dotenvPath = path.join(process.cwd(), "/.env");
 dotenv.config({ path: dotenvPath });
@@ -41,10 +42,16 @@ async function main() {
 
   const app = new Koa();
   const router = new Router();
+  const cache = new NodeCache();
 
   router.get('/latest', async (ctx, next) => {
     try {
-      ctx.body = await fetchElement();
+      let _v = cache.get('version') as string;
+      if (!_v || _v === "N/A") {
+          _v = await fetchElement() ?? "N/A";
+          cache.set('version', _v, 1000);
+      }
+      ctx.body = _v;
       ctx.status = 200;
     } catch(err) {
       ctx.status = 500;

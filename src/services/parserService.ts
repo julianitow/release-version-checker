@@ -1,7 +1,6 @@
 import puppeteer from "puppeteer";
 import { JSDOM } from "jsdom";
 import { IParserService } from "../interfaces/services";
-import { Logger } from "../lib/Logger";
 
 export class ParserService implements IParserService {
   async getElementByIdFromString(
