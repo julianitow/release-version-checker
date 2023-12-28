@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "start:watch": "nodemon .",
-    "dev": "tsc && npm run start"
+    "dev": "tsc && HTTPS=false npm run start"
   },
   "repository": {
     "type": "git",

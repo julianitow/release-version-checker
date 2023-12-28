@@ -6,6 +6,8 @@ import { ParserService, VersionService } from "./services";
 import { IParserService, IVersion } from "./interfaces";
 import path from "path";
 import NodeCache from "node-cache";
+import https from "https";
+import fs from "fs";
 
 const dotenvPath = path.join(process.cwd(), "/.env");
 dotenv.config({ path: dotenvPath });
@@ -18,7 +20,6 @@ async function fetchElement(): Promise<string | undefined> {
   const parserService: IParserService = new ParserService();
 
   let elements: HTMLElement[] | null = null;
-  let version: string = "";
 
   try {
     const parsedPage = await parserService.parsePage(URL);
@@ -69,7 +70,35 @@ async function main() {
     .use(router.routes())
     .use(router.allowedMethods())
 
-  app.listen(PORT, () => { Logger.INFO(`Listening on port: ${PORT}`)});
+  if (process.env.HTTPS) {
+    Logger.INFO("HTTPS SERVER MODE");
+    // From: https://www.rechberger.io/setup-https-letsencrypt-for-koa-js/#setup
+    const httpsConfig = {
+      domain: process.env.DOMAIN,
+      https: {
+        port: process.env.SECURED_PORT || 3443,
+        options: {
+          key: fs.readFileSync(path.resolve(process.cwd(), 'certs/privkey.pem'), 'utf8').toString(),
+          cert: fs.readFileSync(path.resolve(process.cwd(), 'certs/fullchain.pem'), 'utf8').toString(),
+        }
+      }
+    }
+    const serverCB = app.callback();
+    try {
+      const httpsServer = https.createServer(httpsConfig.https.options, serverCB);
+      httpsServer.listen(httpsConfig.https.port, () => {
+        //if(!!err) {
+        //  throw(new Error(`HTTPS Server failure: ${err} ==> ${err && err.stack}`));
+        //}
+        console.log(`HTTPS Server OK: https://${httpsConfig.domain}`);
+      });
+    } catch(err) {
+      console.error(err);
+    }
+  } else {
+    Logger.WARN("HTTP SERVER MODE");
+    app.listen(PORT, () => { Logger.INFO(`Listening on port: ${PORT}`)});
+  }
 }
 
 main();

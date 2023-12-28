@@ -3,5 +3,7 @@ version: '3.8'
 services:
   server:
    image: julianit0w/github-version-checker
+   volumes:
+     - path/to/certificates/dir:/workspace/certs:ro
    env_file:
     - .env

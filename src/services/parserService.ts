@@ -35,6 +35,7 @@ export class ParserService implements IParserService {
     const browser = await puppeteer.launch({
       args: ["--no-sandbox"],
       headless: "new",
+      timeout: 0,
       ...config,
     });
     const page = await browser.newPage();
