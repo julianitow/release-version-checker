@@ -12,3 +12,5 @@ dist/
 #OTHER
 *.zip
 .env
+blacklist
+error_logs

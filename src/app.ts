@@ -8,6 +8,7 @@ import path from "path";
 import NodeCache from "node-cache";
 import https from "https";
 import fs from "fs";
+import { SecurityMiddleware } from "./middlewares";
 
 const dotenvPath = path.join(process.cwd(), "/.env");
 dotenv.config({ path: dotenvPath });
@@ -45,7 +46,7 @@ async function main() {
   const router = new Router();
   const cache = new NodeCache();
 
-  router.get('/latest', async (ctx, next) => {
+  router.get('/latest', async (ctx) => {
     try {
       let _v = cache.get('version') as string;
       if (!_v || _v === "N/A") {
@@ -59,8 +60,14 @@ async function main() {
     }
   });
 
+  if (!fs.existsSync(SecurityMiddleware.blacklistFilePath)) fs.writeFileSync(SecurityMiddleware.blacklistFilePath, "");
+  if (!fs.existsSync(SecurityMiddleware.errorFilePath)) fs.writeFileSync(SecurityMiddleware.errorFilePath, "");
+
+  SecurityMiddleware.routes = router.stack.map(i => i.path) as string[];
+
   app
     .use(Logger.KOA_LOG)
+    .use(SecurityMiddleware.koaSecurity)
     .use(async (ctx, next) => {
       const start = Date.now();
       await next();
@@ -90,7 +97,7 @@ async function main() {
         //if(!!err) {
         //  throw(new Error(`HTTPS Server failure: ${err} ==> ${err && err.stack}`));
         //}
-        console.log(`HTTPS Server OK: https://${httpsConfig.domain}`);
+        console.log(`HTTPS Server OK: https://${httpsConfig.domain} :: port: ${httpsConfig.https.port}`);
       });
     } catch(err) {
       console.error(err);

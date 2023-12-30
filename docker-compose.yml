@@ -3,7 +3,9 @@ version: '3.8'
 services:
   server:
    image: julianit0w/github-version-checker
+   ports:
+    - 443:3443
    volumes:
-     - path/to/certificates/dir:/workspace/certs:ro
+     - ./certs:/workspace/certs #HTTPS CERTIFICATES DIR FOR DOMAIN SET IN .env
    env_file:
     - .env

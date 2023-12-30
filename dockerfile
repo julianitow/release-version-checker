@@ -31,5 +31,6 @@ COPY crontab.txt /workspace/
 
 RUN /usr/bin/crontab /workspace/crontab.txt
 EXPOSE 3000
+EXPOSE 3443
 ENTRYPOINT [ "npm", "run", "start" ]
 #CMD ["crond", "-f"]
